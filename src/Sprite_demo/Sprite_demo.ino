@@ -24,22 +24,23 @@
  * Teensy 4.1 dev board        : CS: 39, DC: 41, RST: 40, BL: 22, SCK: 13, MOSI: 11, MISO: 12
  ******************************************************************************/
 #include "Arduino_GFX_Library.h"
-// #define GFX_DEV_DEVICE LILYGO_T_DISPLAY_S3
-// #define GFX_EXTRA_PRE_INIT()          \
-//   {                                   \
-//     pinMode(15 /* PWD */, OUTPUT);    \
-//     digitalWrite(15 /* PWD */, HIGH); \
-//   }
-// #define GFX_BL 38
-// Arduino_DataBus *bus = new Arduino_ESP32PAR8Q(
-//     7 /* DC */, 6 /* CS */, 8 /* WR */, 9 /* RD */,
-//     39 /* D0 */, 40 /* D1 */, 41 /* D2 */, 42 /* D3 */, 45 /* D4 */, 46 /* D5 */, 47 /* D6 */, 48 /* D7 */);
-// Arduino_G *output_display = new Arduino_ST7789(bus, 5 /* RST */, 3 /* rotation */, true /* IPS */, 170 /* width */, 320 /* height */, 35 /* col offset 1 */, 0 /* row offset 1 */, 35 /* col offset 2 */, 0 /* row offset 2 */);
 
-#define GFX_DEV_DEVICE ESP32_1732S019
-#define GFX_BL 14
-Arduino_DataBus *bus = new Arduino_ESP32SPI(11 /* DC */, 10 /* CS */, 12 /* SCK */, 13 /* MOSI */, GFX_NOT_DEFINED /* MISO */);
-Arduino_G *output_display = new Arduino_ST7789(bus, 1 /* RST */, 3 /* rotation */, true /* IPS */, 170 /* width */, 320 /* height */, 35 /* col offset 1 */, 0 /* row offset 1 */, 35 /* col offset 2 */, 0 /* row offset 2 */);
+#define GFX_DEV_DEVICE LILYGO_T_DISPLAY_S3
+#define GFX_EXTRA_PRE_INIT()          \
+  {                                   \
+    pinMode(15 /* PWD */, OUTPUT);    \
+    digitalWrite(15 /* PWD */, HIGH); \
+  }
+#define GFX_BL 38
+Arduino_DataBus *bus = new Arduino_ESP32PAR8Q(
+    7 /* DC */, 6 /* CS */, 8 /* WR */, 9 /* RD */,
+    39 /* D0 */, 40 /* D1 */, 41 /* D2 */, 42 /* D3 */, 45 /* D4 */, 46 /* D5 */, 47 /* D6 */, 48 /* D7 */);
+Arduino_G *output_display = new Arduino_ST7789(bus, 5 /* RST */, 3 /* rotation */, true /* IPS */, 170 /* width */, 320 /* height */, 35 /* col offset 1 */, 0 /* row offset 1 */, 35 /* col offset 2 */, 0 /* row offset 2 */);
+
+//#define GFX_DEV_DEVICE ESP32_1732S019
+//#define GFX_BL 14
+//Arduino_DataBus *bus = new Arduino_ESP32SPI(11 /* DC */, 10 /* CS */, 12 /* SCK */, 13 /* MOSI */, GFX_NOT_DEFINED /* MISO */);
+//Arduino_G *output_display = new Arduino_ST7789(bus, 1 /* RST */, 3 /* rotation */, true /* IPS */, 170 /* width */, 320 /* height */, 35 /* col offset 1 */, 0 /* row offset 1 */, 35 /* col offset 2 */, 0 /* row offset 2 */);
 
 #if defined(USE_INDEXED_SPRITE_AND_CANVAS)
 Arduino_Canvas_Indexed *gfx = new Arduino_Canvas_Indexed(320 /* width */, 170 /* height */, output_display);
