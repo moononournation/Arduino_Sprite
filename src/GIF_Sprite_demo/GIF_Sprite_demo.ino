@@ -1,3 +1,8 @@
+// Uncomment 1 and only 1 option
+// #define USE_INDEXED_SPRITE
+#define USE_INDEXED_SPRITE_AND_CANVAS
+// #define USE_SPRITE
+
 /*******************************************************************************
  * GIF Sprite Demo
  * This is a simple GIF Sprite Demo example
@@ -48,11 +53,29 @@
  * Teensy 4.1 dev board        : CS: 39, DC: 41, RST: 40, BL: 22, SCK: 13, MOSI: 11, MISO: 12
  ******************************************************************************/
 #include <Arduino_GFX_Library.h>
-#define GFX_BL 14
-Arduino_DataBus *bus = new Arduino_ESP32SPI(11 /* DC */, 10 /* CS */, 12 /* SCK */, 13 /* MOSI */, GFX_NOT_DEFINED /* MISO */);
-Arduino_G *output_display = new Arduino_ST7789(bus, 1 /* RST */, 0 /* rotation */, true /* IPS */, 170 /* width */, 320 /* height */, 35 /* col offset 1 */, 0 /* row offset 1 */, 35 /* col offset 2 */, 0 /* row offset 2 */);
+
+#define GFX_DEV_DEVICE LILYGO_T_DISPLAY_S3
+#define GFX_EXTRA_PRE_INIT()          \
+  {                                   \
+    pinMode(15 /* PWD */, OUTPUT);    \
+    digitalWrite(15 /* PWD */, HIGH); \
+  }
+#define GFX_BL 38
+Arduino_DataBus *bus = new Arduino_ESP32PAR8Q(
+    7 /* DC */, 6 /* CS */, 8 /* WR */, 9 /* RD */,
+    39 /* D0 */, 40 /* D1 */, 41 /* D2 */, 42 /* D3 */, 45 /* D4 */, 46 /* D5 */, 47 /* D6 */, 48 /* D7 */);
+Arduino_G *output_display = new Arduino_ST7789(bus, 5 /* RST */, 0 /* rotation */, true /* IPS */, 170 /* width */, 320 /* height */, 35 /* col offset 1 */, 0 /* row offset 1 */, 35 /* col offset 2 */, 0 /* row offset 2 */);
+
+// #define GFX_DEV_DEVICE ESP32_1732S019
+// #define GFX_BL 14
+// Arduino_DataBus *bus = new Arduino_ESP32SPI(11 /* DC */, 10 /* CS */, 12 /* SCK */, 13 /* MOSI */, GFX_NOT_DEFINED /* MISO */);
+// Arduino_G *output_display = new Arduino_ST7789(bus, 1 /* RST */, 0 /* rotation */, true /* IPS */, 170 /* width */, 320 /* height */, 35 /* col offset 1 */, 0 /* row offset 1 */, 35 /* col offset 2 */, 0 /* row offset 2 */);
+
+#if defined(USE_INDEXED_SPRITE_AND_CANVAS)
 Arduino_Canvas_Indexed *gfx = new Arduino_Canvas_Indexed(170 /* width */, 320 /* height */, output_display);
-// Arduino_GFX *gfx = new Arduino_Canvas(170 /* width */, 320 /* height */, output_display);
+#else
+Arduino_GFX *gfx = new Arduino_Canvas(320 /* width */, 170 /* height */, output_display);
+#endif
 /*******************************************************************************
  * End of Arduino_GFX setting
  ******************************************************************************/
@@ -82,7 +105,13 @@ static GifClass gifClass;
 uint8_t *spriteMaster;
 bool spriteInitiated = false;
 
+#if defined(USE_INDEXED_SPRITE) or defined(USE_INDEXED_SPRITE_AND_CANVAS)
 #include "Indexed_Sprite.h"
+#elif defined(USE_SPRITE)
+#include "Sprite.h"
+#endif
+
+#if defined(USE_INDEXED_SPRITE) or defined(USE_INDEXED_SPRITE_AND_CANVAS)
 Indexed_Sprite *background;
 Indexed_Sprite *mountains1;
 Indexed_Sprite *mountains2;
@@ -93,6 +122,18 @@ Indexed_Sprite *grasses2;
 Indexed_Sprite *cars;
 Indexed_Sprite *clouds;
 Indexed_Sprite *sun;
+#elif defined(USE_SPRITE)
+Sprite *background;
+Sprite *mountains1;
+Sprite *mountains2;
+Sprite *road;
+Sprite *buildings;
+Sprite *grasses1;
+Sprite *grasses2;
+Sprite *cars;
+Sprite *clouds;
+Sprite *sun;
+#endif
 
 void setup()
 {
@@ -109,7 +150,9 @@ void setup()
   gfx->begin(80000000);
   gfx->fillScreen(BLACK);
   gfx->flush();
+#if defined(USE_INDEXED_SPRITE_AND_CANVAS)
   gfx->setDirectUseColorIndex(true);
+#endif
 
 #ifdef GFX_BL
   pinMode(GFX_BL, OUTPUT);
@@ -182,11 +225,15 @@ void setup()
 
         if (res > 0)
         {
+#if defined(USE_INDEXED_SPRITE_AND_CANVAS)
           // inital palette
           uint16_t *palette = gfx->getColorIndex();
-          // uint16_t *palette = (uint16_t *)malloc(gif->palette->len * 2);
+#elif defined(USE_SPRITE)
+          uint16_t *palette = (uint16_t *)malloc(gif->palette->len * 2);
+#endif
           memcpy(palette, gif->palette->colors, gif->palette->len * 2);
 
+#if defined(USE_INDEXED_SPRITE) or defined(USE_INDEXED_SPRITE_AND_CANVAS)
           background = new Indexed_Sprite(0, 0, spriteMaster, palette, 540, 320, false, 1);
           mountains2 = new Indexed_Sprite(0, 81, spriteMaster + (320 * 540), palette, 540, 124, true, 1, gif->gce.tindex);
           mountains1 = new Indexed_Sprite(0, 179, spriteMaster + (444 * 540), palette, 540, 32, true, 1, gif->gce.tindex);
@@ -197,6 +244,18 @@ void setup()
           cars = new Indexed_Sprite(0, 260, spriteMaster + (753 * 540), palette, 540, 14, true, 1, gif->gce.tindex);
           sun = new Indexed_Sprite(0, 12, spriteMaster + (767 * 540), palette, 540, 40, true, 1, gif->gce.tindex);
           clouds = new Indexed_Sprite(0, 2, spriteMaster + (807 * 540), palette, 540, 124, true, 1, gif->gce.tindex);
+#elif defined(USE_SPRITE)
+          background = new Sprite(0, 0, spriteMaster, palette, 540, 320, false, 1);
+          mountains2 = new Sprite(0, 81, spriteMaster + (320 * 540), palette, 540, 124, true, 1, gif->gce.tindex);
+          mountains1 = new Sprite(0, 179, spriteMaster + (444 * 540), palette, 540, 32, true, 1, gif->gce.tindex);
+          road = new Sprite(0, 210, spriteMaster + (476 * 540), palette, 540, 108, true, 1);
+          buildings = new Sprite(0, 112, spriteMaster + (584 * 540), palette, 540, 128, true, 1, gif->gce.tindex);
+          grasses2 = new Sprite(0, 224, spriteMaster + (712 * 540), palette, 540, 21, true, 1, gif->gce.tindex);
+          grasses1 = new Sprite(0, 302, spriteMaster + (733 * 540), palette, 540, 20, true, 1, gif->gce.tindex);
+          cars = new Sprite(0, 260, spriteMaster + (753 * 540), palette, 540, 14, true, 1, gif->gce.tindex);
+          sun = new Sprite(0, 12, spriteMaster + (767 * 540), palette, 540, 40, true, 1, gif->gce.tindex);
+          clouds = new Sprite(0, 2, spriteMaster + (807 * 540), palette, 540, 124, true, 1, gif->gce.tindex);
+#endif
 
           spriteInitiated = true;
         }
