@@ -23,7 +23,7 @@
  * Seeeduino XIAO dev board    : CS:  3, DC:  2, RST:  1, BL:  0, SCK:  8, MOSI: 10, MISO:  9
  * Teensy 4.1 dev board        : CS: 39, DC: 41, RST: 40, BL: 22, SCK: 13, MOSI: 11, MISO: 12
  ******************************************************************************/
-#include "Arduino_GFX_Library.h"
+#include <Arduino_GFX_Library.h>
 
 #define GFX_DEV_DEVICE LILYGO_T_DISPLAY_S3
 #define GFX_EXTRA_PRE_INIT()          \
@@ -125,8 +125,11 @@ void SecondTickerCode(void *p)
 
 void setup()
 {
-  // Serial.begin(115200);
+  Serial.begin(115200);
+  // Serial.setDebugOutput(true);
   // while(!Serial);
+  Serial.println("Sprite Demo");
+
   // size_t len = sizeof(imageA);
   // size_t i = 0;
   // for (int f = 0; f < 6; f++)

@@ -1,32 +1,34 @@
 class Indexed_Sprite
 {
 public:
-  Indexed_Sprite(int16_t x, uint16_t y, uint8_t *bitmap, uint16_t *palette, int16_t w, int16_t h, bool loop, size_t frames)
-      : _x(x), _y(y), _bitmap(bitmap), _palette(palette), _w(w), _h(h), _loop(loop), _frames(frames)
+  Indexed_Sprite(int16_t x, uint16_t y, uint8_t *bitmap, uint16_t *palette, int16_t w, int16_t h, bool loop, size_t frames, int16_t h_scoll_divider)
+      : _x(x), _y(y), _bitmap(bitmap), _palette(palette), _w(w), _h(h), _loop(loop), _frames(frames), _h_scoll_divider(h_scoll_divider)
   {
   }
-  Indexed_Sprite(int16_t x, uint16_t y, uint8_t *bitmap, uint16_t *palette, int16_t w, int16_t h, bool loop, size_t frames, uint8_t chroma_key)
-      : _x(x), _y(y), _bitmap(bitmap), _palette(palette), _w(w), _h(h), _loop(loop), _frames(frames), _chroma_key(chroma_key)
+  Indexed_Sprite(int16_t x, uint16_t y, uint8_t *bitmap, uint16_t *palette, int16_t w, int16_t h, bool loop, size_t frames, int16_t h_scoll_divider, uint8_t chroma_key)
+      : _x(x), _y(y), _bitmap(bitmap), _palette(palette), _w(w), _h(h), _loop(loop), _frames(frames), _h_scoll_divider(h_scoll_divider), _chroma_key(chroma_key)
   {
     _has_chroma_key = true;
   }
 
   void h_scroll(int16_t v)
   {
-    _x += v;
-    if (_x < -(_w))
-    {
-      _x = _w;
-    }
-    else if (_x > _w)
-    {
-      _x = -(_w);
-    }
+    h_scroll(v, _w);
   }
 
   void h_scroll(int16_t v, int16_t bound)
   {
-    _x += v;
+    _curr_scroll += v;
+    while (_curr_scroll > _h_scoll_divider)
+    {
+      ++_x;
+      _curr_scroll -= _h_scoll_divider;
+    }
+    while (_curr_scroll < -_h_scoll_divider)
+    {
+      --_x;
+      _curr_scroll += _h_scoll_divider;
+    }
     if (_x < -(_w))
     {
       _x = bound;
@@ -77,5 +79,7 @@ private:
   uint8_t _chroma_key;
   bool _has_chroma_key = false;
   size_t _frames;
+  int16_t _h_scoll_divider;
   size_t _curr_frame = 0;
+  int16_t _curr_scroll = 0;
 };

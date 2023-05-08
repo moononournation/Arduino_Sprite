@@ -1,8 +1,3 @@
-// Uncomment 1 and only 1 option
-// #define USE_INDEXED_SPRITE
-#define USE_INDEXED_SPRITE_AND_CANVAS
-// #define USE_SPRITE
-
 /*******************************************************************************
  * GIF Sprite Demo
  * This is a simple GIF Sprite Demo example
@@ -71,11 +66,7 @@ Arduino_G *output_display = new Arduino_ST7789(bus, 5 /* RST */, 0 /* rotation *
 // Arduino_DataBus *bus = new Arduino_ESP32SPI(11 /* DC */, 10 /* CS */, 12 /* SCK */, 13 /* MOSI */, GFX_NOT_DEFINED /* MISO */);
 // Arduino_G *output_display = new Arduino_ST7789(bus, 1 /* RST */, 0 /* rotation */, true /* IPS */, 170 /* width */, 320 /* height */, 35 /* col offset 1 */, 0 /* row offset 1 */, 35 /* col offset 2 */, 0 /* row offset 2 */);
 
-#if defined(USE_INDEXED_SPRITE_AND_CANVAS)
 Arduino_Canvas_Indexed *gfx = new Arduino_Canvas_Indexed(170 /* width */, 320 /* height */, output_display);
-#else
-Arduino_GFX *gfx = new Arduino_Canvas(320 /* width */, 170 /* height */, output_display);
-#endif
 /*******************************************************************************
  * End of Arduino_GFX setting
  ******************************************************************************/
@@ -105,42 +96,39 @@ static GifClass gifClass;
 uint8_t *spriteMaster;
 bool spriteInitiated = false;
 
-#if defined(USE_INDEXED_SPRITE) or defined(USE_INDEXED_SPRITE_AND_CANVAS)
 #include "Indexed_Sprite.h"
-#elif defined(USE_SPRITE)
-#include "Sprite.h"
-#endif
-
-#if defined(USE_INDEXED_SPRITE) or defined(USE_INDEXED_SPRITE_AND_CANVAS)
 Indexed_Sprite *background;
-Indexed_Sprite *mountains1;
-Indexed_Sprite *mountains2;
+Indexed_Sprite *mountains;
 Indexed_Sprite *road;
 Indexed_Sprite *buildings;
-Indexed_Sprite *grasses1;
 Indexed_Sprite *grasses2;
 Indexed_Sprite *cars;
+Indexed_Sprite *grasses1;
+Indexed_Sprite *birds;
 Indexed_Sprite *clouds;
-Indexed_Sprite *sun;
-#elif defined(USE_SPRITE)
-Sprite *background;
-Sprite *mountains1;
-Sprite *mountains2;
-Sprite *road;
-Sprite *buildings;
-Sprite *grasses1;
-Sprite *grasses2;
-Sprite *cars;
-Sprite *clouds;
-Sprite *sun;
-#endif
+
+// Set Up Basic Loop with FPS counter
+int frame = 0;
+volatile int fSnapShot = 0;
+TaskHandle_t SecondTicker;
+void SecondTickerCode(void *p)
+{
+  // Infinite Loop
+  for (;;)
+  {
+    // Sleep for 1 second
+    sleep(1);
+    fSnapShot = frame;
+    frame = 0;
+  }
+}
 
 void setup()
 {
   Serial.begin(115200);
   // Serial.setDebugOutput(true);
   // while(!Serial);
-  Serial.println("Animated GIF Image Viewer");
+  Serial.println("GIF Sprite Demo");
 
 #ifdef GFX_EXTRA_PRE_INIT
   GFX_EXTRA_PRE_INIT();
@@ -150,9 +138,7 @@ void setup()
   gfx->begin(80000000);
   gfx->fillScreen(BLACK);
   gfx->flush();
-#if defined(USE_INDEXED_SPRITE_AND_CANVAS)
   gfx->setDirectUseColorIndex(true);
-#endif
 
 #ifdef GFX_BL
   pinMode(GFX_BL, OUTPUT);
@@ -225,37 +211,19 @@ void setup()
 
         if (res > 0)
         {
-#if defined(USE_INDEXED_SPRITE_AND_CANVAS)
           // inital palette
           uint16_t *palette = gfx->getColorIndex();
-#elif defined(USE_SPRITE)
-          uint16_t *palette = (uint16_t *)malloc(gif->palette->len * 2);
-#endif
           memcpy(palette, gif->palette->colors, gif->palette->len * 2);
 
-#if defined(USE_INDEXED_SPRITE) or defined(USE_INDEXED_SPRITE_AND_CANVAS)
-          background = new Indexed_Sprite(0, 0, spriteMaster, palette, 540, 320, false, 1);
-          mountains2 = new Indexed_Sprite(0, 81, spriteMaster + (320 * 540), palette, 540, 124, true, 1, gif->gce.tindex);
-          mountains1 = new Indexed_Sprite(0, 179, spriteMaster + (444 * 540), palette, 540, 32, true, 1, gif->gce.tindex);
-          road = new Indexed_Sprite(0, 210, spriteMaster + (476 * 540), palette, 540, 108, true, 1);
-          buildings = new Indexed_Sprite(0, 112, spriteMaster + (584 * 540), palette, 540, 128, true, 1, gif->gce.tindex);
-          grasses2 = new Indexed_Sprite(0, 224, spriteMaster + (712 * 540), palette, 540, 21, true, 1, gif->gce.tindex);
-          grasses1 = new Indexed_Sprite(0, 302, spriteMaster + (733 * 540), palette, 540, 20, true, 1, gif->gce.tindex);
-          cars = new Indexed_Sprite(0, 260, spriteMaster + (753 * 540), palette, 540, 14, true, 1, gif->gce.tindex);
-          sun = new Indexed_Sprite(0, 12, spriteMaster + (767 * 540), palette, 540, 40, true, 1, gif->gce.tindex);
-          clouds = new Indexed_Sprite(0, 2, spriteMaster + (807 * 540), palette, 540, 124, true, 1, gif->gce.tindex);
-#elif defined(USE_SPRITE)
-          background = new Sprite(0, 0, spriteMaster, palette, 540, 320, false, 1);
-          mountains2 = new Sprite(0, 81, spriteMaster + (320 * 540), palette, 540, 124, true, 1, gif->gce.tindex);
-          mountains1 = new Sprite(0, 179, spriteMaster + (444 * 540), palette, 540, 32, true, 1, gif->gce.tindex);
-          road = new Sprite(0, 210, spriteMaster + (476 * 540), palette, 540, 108, true, 1);
-          buildings = new Sprite(0, 112, spriteMaster + (584 * 540), palette, 540, 128, true, 1, gif->gce.tindex);
-          grasses2 = new Sprite(0, 224, spriteMaster + (712 * 540), palette, 540, 21, true, 1, gif->gce.tindex);
-          grasses1 = new Sprite(0, 302, spriteMaster + (733 * 540), palette, 540, 20, true, 1, gif->gce.tindex);
-          cars = new Sprite(0, 260, spriteMaster + (753 * 540), palette, 540, 14, true, 1, gif->gce.tindex);
-          sun = new Sprite(0, 12, spriteMaster + (767 * 540), palette, 540, 40, true, 1, gif->gce.tindex);
-          clouds = new Sprite(0, 2, spriteMaster + (807 * 540), palette, 540, 124, true, 1, gif->gce.tindex);
-#endif
+          background = new Indexed_Sprite(0, 0, spriteMaster, palette, 540, 205, false, 1, 0);
+          mountains = new Indexed_Sprite(0, 81, spriteMaster + (205 * 540), palette, 540, 124, true, 1, 3, gif->gce.tindex);
+          road = new Indexed_Sprite(0, 205, spriteMaster + (478 * 540), palette, 540, 108, true, 1, 1);
+          buildings = new Indexed_Sprite(0, 100, spriteMaster + (329 * 540), palette, 540, 128, true, 1, 1, gif->gce.tindex);
+          grasses2 = new Indexed_Sprite(0, 220, spriteMaster + (457 * 540), palette, 540, 21, true, 1, 1, gif->gce.tindex);
+          cars = new Indexed_Sprite(0, 245, spriteMaster + (586 * 540), palette, 540, 14, true, 1, 1, gif->gce.tindex);
+          grasses1 = new Indexed_Sprite(0, 302, spriteMaster + (600 * 540), palette, 540, 20, true, 1, 1, gif->gce.tindex);
+          birds = new Indexed_Sprite(0, 101, spriteMaster + (620 * 540), palette, 540, 31, true, 1, 4, gif->gce.tindex);
+          clouds = new Indexed_Sprite(0, 2, spriteMaster + (651 * 540), palette, 540, 124, true, 1, 2, gif->gce.tindex);
 
           spriteInitiated = true;
         }
@@ -264,6 +232,12 @@ void setup()
       }
     }
   }
+
+  gfx->setTextColor(0xfd, 0x00);
+  gfx->setTextSize(1);
+
+  // Second Ticker thread, pinned to code 0, while Core 1 runs the sprite code
+  xTaskCreatePinnedToCore(SecondTickerCode, "Seconds", 1000, NULL, -1, &SecondTicker, 0);
 }
 
 bool otherFrame = false;
@@ -273,40 +247,39 @@ void testingLoop(void)
   {
     background->draw(gfx);
 
-    mountains2->h_scroll(-1);
-    mountains2->draw(gfx);
-
-    mountains1->h_scroll(-2);
-    mountains1->draw(gfx);
+    mountains->h_scroll(-1);
+    mountains->draw(gfx);
 
     road->h_scroll(-3);
     road->draw(gfx);
 
-    buildings->h_scroll(-4);
+    buildings->h_scroll(-1);
     buildings->draw(gfx);
 
-    grasses2->h_scroll(-5);
+    grasses2->h_scroll(-2);
     grasses2->draw(gfx);
 
-    grasses1->h_scroll(-6);
-    grasses1->draw(gfx);
-
-    cars->h_scroll(-7);
+    cars->h_scroll(-6);
     cars->draw(gfx);
 
-    sun->h_scroll(-8);
-    sun->draw(gfx);
+    grasses1->h_scroll(-5);
+    grasses1->draw(gfx);
 
-    clouds->h_scroll(-9);
+    birds->h_scroll(1);
+    birds->draw(gfx);
+
+    clouds->h_scroll(1);
     clouds->draw(gfx);
   }
 }
 
 void loop()
 {
-  unsigned long start = millis();
   testingLoop();
-  // Serial.print(millis() - start);
+
+  gfx->setCursor(2, 2);
+  gfx->print(fSnapShot);
+
   gfx->flush();
-  // Serial.printf(", %d\n", millis() - start);
+  frame++;
 }
