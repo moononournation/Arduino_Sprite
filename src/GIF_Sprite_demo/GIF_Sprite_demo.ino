@@ -106,6 +106,7 @@ Indexed_Sprite *cars;
 Indexed_Sprite *grasses1;
 Indexed_Sprite *birds;
 Indexed_Sprite *clouds;
+Indexed_Sprite *mpv;
 
 // Set Up Basic Loop with FPS counter
 int frame = 0;
@@ -215,15 +216,16 @@ void setup()
           uint16_t *palette = gfx->getColorIndex();
           memcpy(palette, gif->palette->colors, gif->palette->len * 2);
 
-          background = new Indexed_Sprite(0, 0, spriteMaster, palette, 540, 205, false, 1, 0);
-          mountains = new Indexed_Sprite(0, 81, spriteMaster + (205 * 540), palette, 540, 124, true, 1, 3, gif->gce.tindex);
-          road = new Indexed_Sprite(0, 205, spriteMaster + (478 * 540), palette, 540, 108, true, 1, 1);
-          buildings = new Indexed_Sprite(0, 100, spriteMaster + (329 * 540), palette, 540, 128, true, 1, 1, gif->gce.tindex);
-          grasses2 = new Indexed_Sprite(0, 220, spriteMaster + (457 * 540), palette, 540, 21, true, 1, 1, gif->gce.tindex);
-          cars = new Indexed_Sprite(0, 245, spriteMaster + (586 * 540), palette, 540, 14, true, 1, 1, gif->gce.tindex);
-          grasses1 = new Indexed_Sprite(0, 302, spriteMaster + (600 * 540), palette, 540, 20, true, 1, 1, gif->gce.tindex);
-          birds = new Indexed_Sprite(0, 101, spriteMaster + (620 * 540), palette, 540, 31, true, 1, 4, gif->gce.tindex);
-          clouds = new Indexed_Sprite(0, 2, spriteMaster + (651 * 540), palette, 540, 124, true, 1, 2, gif->gce.tindex);
+          background = new Indexed_Sprite(0, 0, spriteMaster, palette, 540, 205, 0, false, 1, 0);
+          mountains = new Indexed_Sprite(0, 81, spriteMaster + (205 * 540), palette, 540, 124, 0, true, 1, 3, gif->gce.tindex);
+          road = new Indexed_Sprite(0, 205, spriteMaster + (478 * 540), palette, 540, 108, 0, true, 1, 1);
+          buildings = new Indexed_Sprite(0, 100, spriteMaster + (329 * 540), palette, 540, 128, 0, true, 1, 1, gif->gce.tindex);
+          grasses2 = new Indexed_Sprite(0, 220, spriteMaster + (457 * 540), palette, 540, 21, 0, true, 1, 1, gif->gce.tindex);
+          cars = new Indexed_Sprite(0, 245, spriteMaster + (586 * 540), palette, 540, 14, 0, true, 1, 1, gif->gce.tindex);
+          grasses1 = new Indexed_Sprite(0, 302, spriteMaster + (600 * 540), palette, 540, 20, 0, true, 1, 1, gif->gce.tindex);
+          birds = new Indexed_Sprite(0, 101, spriteMaster + (620 * 540), palette, 51, 32, (540 - 51), false, 4, 4, gif->gce.tindex);
+          clouds = new Indexed_Sprite(0, 2, spriteMaster + (652 * 540), palette, 540, 124, 0, true, 1, 2, gif->gce.tindex);
+          mpv = new Indexed_Sprite((gfx->width() - 80) / 2, 242, spriteMaster + (776 * 540), palette, 67, 40, (540 - 67), false, 8, 2, gif->gce.tindex);
 
           spriteInitiated = true;
         }
@@ -265,11 +267,15 @@ void testingLoop(void)
     grasses1->h_scroll(-5);
     grasses1->draw(gfx);
 
-    birds->h_scroll(1);
+    birds->h_scroll(1, 480);
+    birds->next_frame();
     birds->draw(gfx);
 
     clouds->h_scroll(1);
     clouds->draw(gfx);
+
+    mpv->next_frame();
+    mpv->draw(gfx);
   }
 }
 
