@@ -1,12 +1,12 @@
 class Indexed_Sprite
 {
 public:
-  Indexed_Sprite(int16_t x, uint16_t y, uint8_t *bitmap, uint16_t *palette, int16_t w, int16_t h, int16_t x_skip, bool loop, size_t frames, int16_t h_scoll_divider)
-      : _x(x), _y(y), _bitmap(bitmap), _palette(palette), _w(w), _h(h), _x_skip(x_skip), _loop(loop), _frames(frames), _speed_divider(h_scoll_divider)
+  Indexed_Sprite(int16_t x, uint16_t y, uint8_t *bitmap, uint16_t *palette, int16_t w, int16_t h, int16_t x_skip, bool loop, size_t frames, int16_t speed_divider)
+      : _x(x), _y(y), _bitmap(bitmap), _palette(palette), _w(w), _h(h), _x_skip(x_skip), _loop(loop), _frames(frames), _speed_divider(speed_divider)
   {
   }
-  Indexed_Sprite(int16_t x, uint16_t y, uint8_t *bitmap, uint16_t *palette, int16_t w, int16_t h, int16_t x_skip, bool loop, size_t frames, int16_t h_scoll_divider, uint8_t chroma_key)
-      : _x(x), _y(y), _bitmap(bitmap), _palette(palette), _w(w), _h(h), _x_skip(x_skip), _loop(loop), _frames(frames), _speed_divider(h_scoll_divider), _chroma_key(chroma_key)
+  Indexed_Sprite(int16_t x, uint16_t y, uint8_t *bitmap, uint16_t *palette, int16_t w, int16_t h, int16_t x_skip, bool loop, size_t frames, int16_t speed_divider, uint8_t chroma_key)
+      : _x(x), _y(y), _bitmap(bitmap), _palette(palette), _w(w), _h(h), _x_skip(x_skip), _loop(loop), _frames(frames), _speed_divider(speed_divider), _chroma_key(chroma_key)
   {
     _has_chroma_key = true;
   }
