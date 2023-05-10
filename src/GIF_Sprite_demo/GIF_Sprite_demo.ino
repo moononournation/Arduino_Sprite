@@ -1,9 +1,9 @@
 /*******************************************************************************
  * GIF Sprite Demo
  * This is a simple GIF Sprite Demo example
- * Image Source: https://www.pexels.com/video/earth-rotating-video-856356/
- * cropped: x: 598 y: 178 width: 720 height: 720 resized: 240x240
- * optimized with ezgif.com
+ * Image Source:
+ * https://www.freepik.com/free-vector/urban-life-drawing_727890.htm#query=city%20road
+ * https://giphy.com/gifs/car-carro-nQaMsylXcTIRNorQLJ
  *
  * Setup steps:
  * 1. Change your LCD parameters in Arduino_GFX setting
